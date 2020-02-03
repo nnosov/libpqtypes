@@ -254,7 +254,7 @@ extern "C" {
 #define VARCHAROID       1043
 #define NAMEOID            19
 #define TEXTOID            25
-#define ZPBITOID         1560 /* not supported yet */
+#define ZPBITOID         1560
 #define VARBITOID        1562 /* not supported yet */
 #define BYTEAOID           17
 /* date and time types */
@@ -524,6 +524,8 @@ int pqt_put_text(PGtypeArgs *args); /* handles varchar, bpchar and name */
 int pqt_get_text(PGtypeArgs *args); /* handles varchar, bpchar and name */
 int pqt_put_bytea(PGtypeArgs *args);
 int pqt_get_bytea(PGtypeArgs *args);
+int pqt_put_bit(PGtypeArgs *args);
+int pqt_get_bit(PGtypeArgs *args);
 
 #ifdef __cplusplus
 }

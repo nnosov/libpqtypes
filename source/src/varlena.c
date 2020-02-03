@@ -84,5 +84,69 @@ pqt_get_bytea(PGtypeArgs *args)
 	return 0;
 }
 
+int
+pqt_put_bit(PGtypeArgs *args)
+{
+	int len_bytes;
+	int total_bytes;
+	char *out;
+	PGbit *bit = va_arg(args->ap, PGbit *);
+	PUTNULLCHK(args, bit);
+	len_bytes = bit->len_bytes;
+	total_bytes = len_bytes + (int)sizeof(int32_t);
+	if (args->put.expandBuffer(args, total_bytes) == -1)
+		RERR_MEM(args);
+	out = args->put.out;
+	pqt_buf_putint4(out, bit->len_bits);
+	memcpy(out + sizeof(int32_t), bit->data, (size_t)len_bytes);
+	return total_bytes;
+}
 
-
+int
+pqt_get_bit(PGtypeArgs *args)
+{
+	DECLVALUE(args);
+	DECLLENGTH(args);
+	PGbit *bit = va_arg(args->ap, PGbit *);
+	CHKGETVALS(args, bit);
+	if (args->format == TEXTFMT)
+	{
+		unsigned char *cur_byte;
+		char *cur_char;
+		unsigned char mask_byte;
+		uint32_t len_bits = (uint32_t)strlen(value);
+		int len_bytes = (len_bits >> 3) + !!(len_bits & 07);
+		char *data = (char *)PQresultAlloc(args->get.result, (size_t)len_bytes);
+		if (!data)
+			RERR_MEM(args);
+		cur_byte = (unsigned char *)data;
+		*cur_byte = 0;
+		mask_byte = 0x80;
+		for (cur_char = value; *cur_char; ++cur_char)
+		{
+			if (*cur_char == '1')
+				*cur_byte |= mask_byte;
+			else if (*cur_char != '0')
+			{
+				PQfreemem(data);
+				RERR(args, "String to bit string conversion failed");
+			}
+			mask_byte >>= 1;
+			if (mask_byte == 0)
+			{
+				++cur_byte;
+				*cur_byte = 0;
+				mask_byte = 0x80;
+			}
+		}
+		bit->len_bytes = len_bytes;
+		bit->len_bits = (int32_t)len_bits;
+		bit->data = data;
+		return 0;
+	}
+	/* binary format */
+	bit->len_bytes = valuel - (int)sizeof(int32_t);
+	bit->len_bits = pqt_buf_getint4(value);
+	bit->data = value + sizeof(int32_t);
+	return 0;
+}

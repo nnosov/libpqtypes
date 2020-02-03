@@ -111,7 +111,11 @@ static PGtypeHandler pg_handlers[] = {
 
 	/* more character types */
 	{33, "pg_catalog", "name", -1, NAMEOID, 1003, pqt_put_text,
-		pqt_get_text, __HANDLER_DEFAULTS__} /* supports ptr */
+		pqt_get_text, __HANDLER_DEFAULTS__}, /* supports ptr */
+
+	/* bit string types */
+	{34, "pg_catalog", "bit", -1, ZPBITOID, 1561, pqt_put_bit,
+		pqt_get_bit, __HANDLER_DEFAULTS__}
 };
 
 static int

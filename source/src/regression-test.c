@@ -806,8 +806,8 @@ static void test_geometrics(int format)
 	}
 
 	testcnt++;
-	if (polygon.npts == polygon.npts &&
-		 memcmp(polygon.pts, polygon.pts, polygon.npts * sizeof(PGpoint))==0)
+	if (polygon.npts == polygonval.npts &&
+		 memcmp(polygon.pts, polygonval.pts, polygon.npts * sizeof(PGpoint))==0)
 		printf("  %%polygon - passed\n");
 	else
 	{
@@ -840,14 +840,17 @@ static void test_varlen(int format)
 	PGnumeric num;
 	PGnumeric numin =
 		"-62731893541288039212143296120112.12431212671229121291821928918211";
+	static char bitdata[] = {7, 6, 5, 4, 3, 2, 1, 0};
+	PGbit bit;
+	PGbit bitin = {8, 59, bitdata};
 
 	PQparamReset(param);
 	printf("\nVariable-length types: (%s)\n", format ? "binary" : "text");
 
 	r = PQputf(param, "%bpchar %bpchar* %varchar %varchar* "
-		"%text %text* %bytea %bytea* %uuid %numeric",
+		"%text %text* %bytea %bytea* %uuid %numeric %bit",
 		bpcharin, bpcharin, varcharin, varcharin, textin, textin,
-		&byteain, &byteain, uuidin, numin);
+		&byteain, &byteain, uuidin, numin, &bitin);
 	PUTOKAY(param, r, "PQputf(varlen)");
 
 	DROP_TABLE("libpq_varlen");
@@ -855,27 +858,28 @@ static void test_varlen(int format)
 	result = PQexec(conn, "CREATE TABLE libpq_varlen ("
 		"bp_a bpchar(32), bp_b bpchar(32), vc_a varchar(32), vc_b varchar(32), "
 		"text_a text, text_b text, bytea_a bytea, bytea_b bytea, "
-		"uid uuid, n numeric)");
+		"uid uuid, n numeric, bit_a bit(59))");
 	CMDOKAY("creating libpq_varlen table");
 	PQclear(result);
 
 	result = PQparamExec(conn, param, "INSERT INTO libpq_varlen VALUES"
-		"($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)", format);
+		"($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)", format);
 	CMDOKAY("PQparamExec(INSERT:varlen)");
 	PQclear(result);
 
 	result = PQparamExec(conn, NULL,
-		"SELECT bp_a,vc_a,text_a,bytea_a,uid,n FROM libpq_varlen", format);
+		"SELECT bp_a,vc_a,text_a,bytea_a,uid,n,bit_a FROM libpq_varlen", format);
 	TUPSOKAY("PQparamExec(SELECT:varlen)");
 
 	r = PQgetf(result, 0,
-		"%bpchar %varchar %text %bytea %uuid %numeric",
+		"%bpchar %varchar %text %bytea %uuid %numeric %bit",
 		0, &bpcharp,     /* field_num, PGbpchar* */
 		1, &varcharp,    /* field_num, PGvarchar* */
 		2, &textp,       /* field_num, PGtext* */
 		3, &byteap,      /* field_num, PGbytea* */
 		4, &uuid,        /* field_num, PGuuid* */
-		5, &num);        /* field_num, PGnumeric* */
+		5, &num,         /* field_num, PGnumeric* */
+		6, &bit);        /* field num, PGbit* */
 	GETOKAY(r, "PQgetf(varlen)");
 
 	/* Because we are using the '*' specifier flag, we clear the results at
@@ -914,6 +918,18 @@ static void test_varlen(int format)
 		printf("  %%uuid - passed\n");
 
 	CHKVLEN("numeric", num, numin);
+
+	testcnt++;
+	if (bitin.len_bytes != bit.len_bytes ||
+		bitin.len_bits != bit.len_bits ||
+		memcmp(bitin.data, bit.data, (size_t)bit.len_bytes))
+	{
+		failcnt++;
+		fprintf(stderr, "  %%bit - FAILED'n");
+	}
+	else
+		printf("  %%bit - passed\n");
+
 	PQclear(result);
 }
 

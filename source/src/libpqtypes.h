@@ -15,6 +15,7 @@
 #include <libpq-fe.h>
 #include <time.h>
 #include <stdarg.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -139,6 +140,13 @@ typedef struct
   int len;
   char *data;
 } PGbytea;
+
+typedef struct
+{
+	int len_bytes;
+	int32_t len_bits;
+	char *data;
+} PGbit;
 
 /* ----------------
  * Numeric types
