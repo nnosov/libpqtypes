@@ -255,7 +255,7 @@ extern "C" {
 #define NAMEOID            19
 #define TEXTOID            25
 #define ZPBITOID         1560
-#define VARBITOID        1562 /* not supported yet */
+#define VARBITOID        1562
 #define BYTEAOID           17
 /* date and time types */
 #define DATEOID          1082
@@ -526,6 +526,8 @@ int pqt_put_bytea(PGtypeArgs *args);
 int pqt_get_bytea(PGtypeArgs *args);
 int pqt_put_bit(PGtypeArgs *args);
 int pqt_get_bit(PGtypeArgs *args);
+int pqt_put_varbit(PGtypeArgs *args);
+int pqt_get_varbit(PGtypeArgs *args);
 
 #ifdef __cplusplus
 }

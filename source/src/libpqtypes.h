@@ -146,7 +146,9 @@ typedef struct
 	int len_bytes;
 	int32_t len_bits;
 	char *data;
-} PGbit;
+} PGvarbit;
+
+typedef PGvarbit PGbit;
 
 /* ----------------
  * Numeric types

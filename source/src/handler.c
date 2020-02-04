@@ -115,7 +115,9 @@ static PGtypeHandler pg_handlers[] = {
 
 	/* bit string types */
 	{34, "pg_catalog", "bit", -1, ZPBITOID, 1561, pqt_put_bit,
-		pqt_get_bit, __HANDLER_DEFAULTS__}
+		pqt_get_bit, __HANDLER_DEFAULTS__},
+	{35, "pg_catalog", "varbit", -1, VARBITOID, 1563, pqt_put_varbit,
+		pqt_get_varbit, __HANDLER_DEFAULTS__}
 };
 
 static int

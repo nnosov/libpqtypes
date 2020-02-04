@@ -84,31 +84,33 @@ pqt_get_bytea(PGtypeArgs *args)
 	return 0;
 }
 
+/* Bit string types */
+
 int
-pqt_put_bit(PGtypeArgs *args)
+pqt_put_varbit(PGtypeArgs *args)
 {
 	int len_bytes;
 	int total_bytes;
 	char *out;
-	PGbit *bit = va_arg(args->ap, PGbit *);
-	PUTNULLCHK(args, bit);
-	len_bytes = bit->len_bytes;
+	PGvarbit *varbit = va_arg(args->ap, PGvarbit *);
+	PUTNULLCHK(args, varbit);
+	len_bytes = varbit->len_bytes;
 	total_bytes = len_bytes + (int)sizeof(int32_t);
 	if (args->put.expandBuffer(args, total_bytes) == -1)
 		RERR_MEM(args);
 	out = args->put.out;
-	pqt_buf_putint4(out, bit->len_bits);
-	memcpy(out + sizeof(int32_t), bit->data, (size_t)len_bytes);
+	pqt_buf_putint4(out, varbit->len_bits);
+	memcpy(out + sizeof(int32_t), varbit->data, (size_t)len_bytes);
 	return total_bytes;
 }
 
 int
-pqt_get_bit(PGtypeArgs *args)
+pqt_get_varbit(PGtypeArgs *args)
 {
 	DECLVALUE(args);
 	DECLLENGTH(args);
-	PGbit *bit = va_arg(args->ap, PGbit *);
-	CHKGETVALS(args, bit);
+	PGvarbit *varbit = va_arg(args->ap, PGvarbit *);
+	CHKGETVALS(args, varbit);
 	if (args->format == TEXTFMT)
 	{
 		unsigned char *cur_byte;
@@ -139,14 +141,26 @@ pqt_get_bit(PGtypeArgs *args)
 				mask_byte = 0x80;
 			}
 		}
-		bit->len_bytes = len_bytes;
-		bit->len_bits = (int32_t)len_bits;
-		bit->data = data;
+		varbit->len_bytes = len_bytes;
+		varbit->len_bits = (int32_t)len_bits;
+		varbit->data = data;
 		return 0;
 	}
 	/* binary format */
-	bit->len_bytes = valuel - (int)sizeof(int32_t);
-	bit->len_bits = pqt_buf_getint4(value);
-	bit->data = value + sizeof(int32_t);
+	varbit->len_bytes = valuel - (int)sizeof(int32_t);
+	varbit->len_bits = pqt_buf_getint4(value);
+	varbit->data = value + sizeof(int32_t);
 	return 0;
+}
+
+int
+pqt_put_bit(PGtypeArgs *args)
+{
+	return pqt_put_varbit(args);
+}
+
+int
+pqt_get_bit(PGtypeArgs *args)
+{
+	return pqt_get_varbit(args);
 }
