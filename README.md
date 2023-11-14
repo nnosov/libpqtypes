@@ -5,6 +5,10 @@ The reason for creating this fork is a slow reaction from libpqtypes developers 
 
 Change Log:
 
+v 1.5.3 (Vladislav Golovin at Open Systems LLC)
+-	Bit data type support added.
+-	Bit varying data type support added.
+
 v 1.5.2a (most of the changes below are made by Dmitry Epstein)
 
  -	PQseterror (error.c) - an optimization.
