@@ -17,7 +17,7 @@ AM_CONFIG_HEADER([src/pqt_config.h:src/pqt_config.h.in])
 AC_PROG_CXX
 AC_PROG_CC
 
-CPPFLAGS="$CPPFLAGS -Isrc"
+CPPFLAGS="$CPPFLAGS -Isrc -I/usr/include/postgresql"
 if test "$CC" = "gcc" ; then
 	# always want reentrant funcs, not just thread-safe mode. -s
 	CFLAGS="$CFLAGS -O2 -Wall -Wpointer-arith -D_GNU_SOURCE -D_REENTRANT -fsigned-char"
