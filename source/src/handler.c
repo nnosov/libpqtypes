@@ -69,7 +69,7 @@ static PGtypeHandler pg_handlers[] = {
 	{18, "pg_catalog", "money", 8, CASHOID, 791, pqt_put_money,
 		pqt_get_money, __HANDLER_DEFAULTS__},
 
-	/* network address typess */
+	/* network address types */
 	{19, "pg_catalog", "inet", -1, INETOID, 1041, pqt_put_inet,
 		pqt_get_inet, __HANDLER_DEFAULTS__},
 	{20, "pg_catalog", "cidr", -1, CIDROID, 651, pqt_put_inet,
@@ -117,7 +117,11 @@ static PGtypeHandler pg_handlers[] = {
 	{34, "pg_catalog", "bit", -1, ZPBITOID, 1561, pqt_put_bit,
 		pqt_get_bit, __HANDLER_DEFAULTS__},
 	{35, "pg_catalog", "varbit", -1, VARBITOID, 1563, pqt_put_varbit,
-		pqt_get_varbit, __HANDLER_DEFAULTS__}
+		pqt_get_varbit, __HANDLER_DEFAULTS__},
+
+	/* json types */
+	{36, "pg_catalog", "json", -1, JSONOID, 199, pqt_put_bytea,
+	        pqt_get_bytea, __HANDLER_DEFAULTS__} /* supports ptr */
 };
 
 static int
