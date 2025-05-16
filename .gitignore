@@ -1,0 +1,11 @@
+source/*.o
+source/*.lo
+source/*.la
+source/.libs/
+source/Makefile
+source/autom4te.cache/
+source/config.log
+source/config.status
+source/libtool
+source/src/pqt_config.h
+source/src/stamp-h1
